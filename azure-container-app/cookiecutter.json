@@ -1,0 +1,9 @@
+{
+  "project_name": "My Container App",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+  "author": "Your Name",
+  "azure_resource_group": "my-rg",
+  "azure_location": "eastus",
+  "container_registry": "myacr.azurecr.io",
+  "port": "8000"
+}
