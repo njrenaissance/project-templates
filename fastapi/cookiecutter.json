@@ -1,7 +1,0 @@
-{
-  "project_name": "My FastAPI Service",
-  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
-  "author": "Your Name",
-  "python_version": "3.11",
-  "port": "8000"
-}

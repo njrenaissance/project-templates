@@ -1,0 +1,9 @@
+.claude/settings.local.json
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
