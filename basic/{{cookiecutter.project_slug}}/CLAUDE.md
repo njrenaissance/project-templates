@@ -2,6 +2,10 @@
 
 Minimal Python project managed with [uv](https://docs.astral.sh/uv/).
 
+## Imports
+
+@docs/GITWORKFLOW.md
+
 ## Structure
 
 ```text
@@ -38,13 +42,3 @@ Don't force a pattern where a plain function or class is simpler — use these t
 Python- and test-specific conventions live in `.claude/rules/` (`python-lang.md`, `pytest-rules.md`) and load automatically when Claude touches matching files.
 
 Run `uv run pytest`, `uv run ruff check .`, and `uv run mypy src` before considering a change done.
-
-## Git workflow
-
-`main` is the golden source of truth — it is always releasable and always green.
-
-- Never commit or push directly to `main`. All work happens on a branch (`feature/...`, `fix/...`) and lands via a pull request.
-- Never rewrite `main` history — no force-push, no `reset --hard`, no amending commits that are already on `main`.
-- Every PR must pass `ci.yml` (lint, type-check, unit-tests — see `.github/workflows/`) before merging. Don't bypass required checks.
-- Keep branches short-lived and scoped to one change; rebase/update from `main` rather than letting a branch drift far behind it.
-- If you need to fix something already merged to `main`, open a new branch and PR rather than editing `main` directly, even for "small" fixes.

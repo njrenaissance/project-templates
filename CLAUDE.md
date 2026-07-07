@@ -24,3 +24,7 @@ Each template directory follows the standard Cookiecutter layout:
 ### Jinja/GitHub Actions delimiter collision
 
 GitHub Actions expression syntax (`${{ ... }}`) and Jinja2's variable delimiters are the same (`{{ }}`). Because workflow files under `{{cookiecutter.project_slug}}/.github/workflows/` get rendered by Jinja, any *new* GitHub Actions expression added there (`${{ github.* }}`, `${{ secrets.* }}`, `${{ matrix.* }}`, etc.) must be wrapped in `{% raw %}...{% endraw %}`, otherwise Cookiecutter's render fails outright (e.g. `'github' is undefined`) rather than quietly producing a broken file. See `ci.yml`'s `concurrency.group` for a working example. Always test-render (`cookiecutter --no-input -o ...`) after touching a workflow file to catch this.
+
+### Shared doc modules
+
+Some docs (e.g. `GITWORKFLOW.md`) are authored once at the repo root as the canonical standard, then copied into each template's `{{cookiecutter.project_slug}}/docs/` folder and linked from that template's `CLAUDE.md` (rather than duplicated inline). This keeps a project's `CLAUDE.md` referencing a swappable module instead of hardcoding conventions that a given project might not need. When the root copy changes, re-sync it into each template that includes it.
