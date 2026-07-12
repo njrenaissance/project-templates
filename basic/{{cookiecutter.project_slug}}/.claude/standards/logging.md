@@ -1,11 +1,11 @@
 # Logging
 
-- Whether structured logging is required depends on the observability
-  profile chosen when the project was created. If the profile calls for
-  structured logging, use `structlog` (see Approved library below). If it
-  doesn't, the standard library's `logging` module is an acceptable
-  alternative — don't add `structlog` as a dependency just to satisfy this
-  standard on a project that has no downstream consumer for structured logs.
+- Whether structured logging is required depends on the `structured_logging`
+  flag chosen when the project was created (`cookiecutter.json`). If it was
+  set to `yes`, use `structlog` (see Approved library below). If it's `no`,
+  the standard library's `logging` module is an acceptable alternative —
+  don't add `structlog` as a dependency just to satisfy this standard on a
+  project that has no downstream consumer for structured logs.
 - Regardless of which library is in use, avoid bare `print()` for anything
   but a script's final human-facing output — it can't be leveled, filtered,
   or routed like a real log call.

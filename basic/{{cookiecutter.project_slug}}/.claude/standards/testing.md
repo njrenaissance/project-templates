@@ -16,8 +16,9 @@
   an internal collaborator just to avoid constructing it — if a class is
   hard to construct for a test, that's a design smell to fix, not a reason
   to mock it away.
-- `[tool.coverage.report] fail_under = 70` (`pyproject.toml`) is a floor for
-  the whole `src/` tree, not a per-file target — critical or complex logic
+- The coverage floor enforced in `[tool.coverage.report]` (see
+  `.claude/rules/pytest-rules.md` for the current threshold) applies to the
+  whole `src/` tree, not a per-file target — critical or complex logic
   should be covered well above it, and trivial glue code isn't worth
   contorting a test to hit a number.
 - `tests/conftest.py` enables live log output at `INFO` automatically when
