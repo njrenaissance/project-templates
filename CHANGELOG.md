@@ -4,6 +4,26 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.3.0] - 2026-07-12
+
+#### Added
+
+- A `## Profile` section in `CLAUDE.md` listing whether each of app-config,
+  structured-logging, telemetry, and security is enabled for the project, so
+  an agent can read the active cross-cutting concerns directly instead of
+  inspecting `cookiecutter.json` or `pyproject.toml`.
+
+#### Changed
+
+- `CLAUDE.md`'s `## Imports` section now conditionally imports
+  `configuration.md` (`app_config`), `telemetry.md` (`telemetry`), and
+  `security.md` (`security`) based on the matching toggle, matching the
+  conditional dependencies already in `pyproject.toml`. `git-workflow.md`,
+  `testing.md`, `error-handling.md`, and `logging.md` import unconditionally
+  — the last of these because `logging.md` itself already gates its
+  `structlog`-vs-stdlib guidance on `structured_logging`. This closes out
+  the wiring flagged as a follow-up in the 1.2.0 entry below.
+
 ### [1.2.0] - 2026-07-12
 
 #### Added
