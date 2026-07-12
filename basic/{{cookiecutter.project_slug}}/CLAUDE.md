@@ -2,9 +2,30 @@
 
 Minimal Python project managed with [uv](https://docs.astral.sh/uv/).
 
+## Profile
+
+Cross-cutting concerns enabled for this project:
+
+- App config (`pydantic-settings`): {{ "enabled" if cookiecutter.app_config == "yes" else "disabled" }}
+- Structured logging (`structlog`): {{ "enabled" if cookiecutter.structured_logging == "yes" else "disabled" }}
+- Telemetry (OpenTelemetry): {{ "enabled" if cookiecutter.telemetry == "yes" else "disabled" }}
+- Security scanning (`bandit`): {{ "enabled" if cookiecutter.security == "yes" else "disabled" }}
+
 ## Imports
 
 @.claude/standards/git-workflow.md
+@.claude/standards/testing.md
+@.claude/standards/error-handling.md
+{%- if cookiecutter.app_config == "yes" %}
+@.claude/standards/configuration.md
+{%- endif %}
+@.claude/standards/logging.md
+{%- if cookiecutter.telemetry == "yes" %}
+@.claude/standards/telemetry.md
+{%- endif %}
+{%- if cookiecutter.security == "yes" %}
+@.claude/standards/security.md
+{%- endif %}
 
 ## Structure
 
