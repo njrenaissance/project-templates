@@ -28,9 +28,9 @@ Each template directory follows the standard Cookiecutter layout:
 
 GitHub Actions expression syntax (`${{ ... }}`) and Jinja2's variable delimiters are the same (`{{ }}`). Because workflow files under `{{cookiecutter.project_slug}}/.github/workflows/` get rendered by Jinja, any *new* GitHub Actions expression added there (`${{ github.* }}`, `${{ secrets.* }}`, `${{ matrix.* }}`, etc.) must be wrapped in `{% raw %}...{% endraw %}`, otherwise Cookiecutter's render fails outright (e.g. `'github' is undefined`) rather than quietly producing a broken file. See `ci.yml`'s `concurrency.group` for a working example. Always test-render (`cookiecutter --no-input -o ...`) after touching a workflow file to catch this.
 
-### Shared doc modules
+### Project standard docs
 
-Docs like `GITWORKFLOW.md` live under each template's own `{{cookiecutter.project_slug}}/.claude/standards/` folder (cross-cutting guidance, alongside the tool/language-specific `{{cookiecutter.project_slug}}/.claude/rules/`) and get linked from that template's `CLAUDE.md` via Claude Code's `@` import syntax (rather than duplicated inline into `CLAUDE.md` itself). This keeps a project's `CLAUDE.md` referencing a swappable module instead of hardcoding conventions that a given project might not need. If a second template ends up needing the same doc, promote it back to a root-level canonical copy (this repo tried that once — see git history — and dropped it while there was only one template) and keep each template's copy in sync with it, e.g. via a CI check that diffs them.
+Docs like `git-workflow.md` live under each template's own `{{cookiecutter.project_slug}}/.claude/standards/` folder (cross-cutting guidance, alongside the tool/language-specific `{{cookiecutter.project_slug}}/.claude/rules/`) and get linked from that template's `CLAUDE.md` via Claude Code's `@` import syntax (rather than duplicated inline into `CLAUDE.md` itself). This keeps a project's `CLAUDE.md` referencing a swappable module instead of hardcoding conventions that a given project might not need. If a second template ends up needing the same doc, promote it back to a root-level canonical copy (this repo tried that once — see git history — and dropped it while there was only one template) and keep each template's copy in sync with it, e.g. via a CI check that diffs them.
 
 ### CHANGELOG.md
 

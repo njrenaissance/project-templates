@@ -13,7 +13,7 @@ All notable changes to the templates in this repository are documented here, per
 
 #### Changed
 
-- Moved `docs/GITWORKFLOW.md` to `.claude/standards/GITWORKFLOW.md` and updated `CLAUDE.md`'s `@` import path accordingly.
+- Moved `docs/GITWORKFLOW.md` to `.claude/standards/git-workflow.md` and updated `CLAUDE.md`'s `@` import path accordingly.
 
 #### Removed
 
