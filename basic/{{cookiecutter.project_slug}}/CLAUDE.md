@@ -4,7 +4,7 @@ Minimal Python project managed with [uv](https://docs.astral.sh/uv/).
 
 ## Imports
 
-@docs/GITWORKFLOW.md
+@.claude/standards/git-workflow.md
 
 ## Structure
 
