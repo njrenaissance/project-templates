@@ -4,6 +4,21 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.1.0] - 2026-07-12
+
+#### Added
+
+- `app_config`, `structured_logging`, `telemetry`, and `security` (`no`/`yes`) cookiecutter prompts; `pyproject.toml` now conditionally includes `pydantic-settings`/`python-dotenv` (app_config), `structlog` (structured_logging), `opentelemetry-sdk`/`opentelemetry-api` (telemetry), and `bandit` (security) based on the selections — each prompt is independent, with no forced bundling.
+- `.claude/standards/` directory alongside `.claude/rules/` for cross-cutting, non-file-type-specific agent guidance — stubbed with `configuration.md`, `logging.md`, `telemetry.md`, `error-handling.md`, `security.md`, `testing.md` (full content is a follow-up issue).
+
+#### Changed
+
+- Moved `docs/GITWORKFLOW.md` to `.claude/standards/GITWORKFLOW.md` and updated `CLAUDE.md`'s `@` import path accordingly.
+
+#### Removed
+
+- The `docs/` folder (empty after the `GITWORKFLOW.md` move) and the now-dead `docs/**` entry in `ci.yml`'s `paths-ignore`.
+
 ### [1.0.0] - 2026-07-07
 
 #### Added

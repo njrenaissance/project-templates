@@ -3,10 +3,30 @@ name = "{{ cookiecutter.project_slug }}"
 version = "0.1.0"
 description = "{{ cookiecutter.project_name }}"
 requires-python = ">={{ cookiecutter.python_version }}"
-dependencies = []
+dependencies = [
+{%- if cookiecutter.app_config == "yes" %}
+    "pydantic-settings>=2.6.0",
+    "python-dotenv>=1.0.0",
+{%- endif %}
+{%- if cookiecutter.structured_logging == "yes" %}
+    "structlog>=24.4.0",
+{%- endif %}
+{%- if cookiecutter.telemetry == "yes" %}
+    "opentelemetry-sdk>=1.27.0",
+    "opentelemetry-api>=1.27.0",
+{%- endif %}
+]
 
 [dependency-groups]
-dev = ["pytest>=8.0.0", "pytest-cov>=5.0.0", "ruff>=0.9.0", "mypy>=1.13.0"]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.9.0",
+    "mypy>=1.13.0",
+{%- if cookiecutter.security == "yes" %}
+    "bandit>=1.7.0",
+{%- endif %}
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

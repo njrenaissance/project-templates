@@ -30,7 +30,7 @@ GitHub Actions expression syntax (`${{ ... }}`) and Jinja2's variable delimiters
 
 ### Shared doc modules
 
-Docs like `GITWORKFLOW.md` live under each template's own `{{cookiecutter.project_slug}}/docs/` folder and get linked from that template's `CLAUDE.md` via Claude Code's `@` import syntax (rather than duplicated inline into `CLAUDE.md` itself). This keeps a project's `CLAUDE.md` referencing a swappable module instead of hardcoding conventions that a given project might not need. If a second template ends up needing the same doc, promote it back to a root-level canonical copy (this repo tried that once — see git history — and dropped it while there was only one template) and keep each template's copy in sync with it, e.g. via a CI check that diffs them.
+Docs like `GITWORKFLOW.md` live under each template's own `{{cookiecutter.project_slug}}/.claude/standards/` folder (cross-cutting guidance, alongside the tool/language-specific `{{cookiecutter.project_slug}}/.claude/rules/`) and get linked from that template's `CLAUDE.md` via Claude Code's `@` import syntax (rather than duplicated inline into `CLAUDE.md` itself). This keeps a project's `CLAUDE.md` referencing a swappable module instead of hardcoding conventions that a given project might not need. If a second template ends up needing the same doc, promote it back to a root-level canonical copy (this repo tried that once — see git history — and dropped it while there was only one template) and keep each template's copy in sync with it, e.g. via a CI check that diffs them.
 
 ### CHANGELOG.md
 
