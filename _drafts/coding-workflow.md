@@ -115,21 +115,14 @@ Cross-cutting concerns (configuration, telemetry, logging, error handling, secur
 
 Before any code is written, the scaffold phase asks a small set of design questions that determine which cross-cutting concerns are active for this project. These are Cookiecutter prompt variables — answered once, baked into the project forever.
 
-The scaffold prompt asks two questions:
+The scaffold prompt asks four independent `no`/`yes` toggles — each concern opts in on its own rather than being bundled into a fixed tier:
 
-**1. Observability profile (choose one):**
-
-| Option | What's included | When to use |
-|---|---|---|
-| `minimal` | Nothing | Throwaway scripts, small utilities |
-| `standard` | App settings (config/env) + structured logging | Most projects |
-| `full` | App settings + structured logging + OpenTelemetry (traces, metrics) | Services, APIs, anything running in production |
-
-**2. Additional cross-cutting concerns (select any):**
-
-| Concern | What it adds |
+| Toggle | What it adds when `yes` |
 |---|---|
-| `security` | Input validation, secrets handling, dependency hygiene standards |
+| `app_config` | Application settings / config loading (`pydantic-settings`) |
+| `structured_logging` | Structured logging (`structlog`) |
+| `telemetry` | OpenTelemetry traces and metrics |
+| `security` | Security scanning (`bandit`) plus input validation, secrets handling, and dependency-hygiene standards |
 
 These selections determine:
 - Which dependencies are added to the project
@@ -137,38 +130,40 @@ These selections determine:
 - Which `foundational` issues are auto-created in GitHub
 - What the review subagent checks for in Phase 5
 
-All decisions are recorded in `CLAUDE.md` so every agent knows the project's profile without asking.
+All decisions are recorded in `CLAUDE.md` (see its `## Profile` section) so every agent knows the project's active concerns without asking.
 
 ### 1. Standards Documents (Template → `CLAUDE.md`)
 
 Every project template ships with a set of standards documents covering each cross-cutting concern. These are imported into `CLAUDE.md` so every agent reads them automatically on every invocation — no explicit referencing required.
 
-The template ships standards documents for every concern. Which ones get imported into `CLAUDE.md` depends on the profile chosen at scaffold time:
+The template ships standards documents for every concern. Some are imported into `CLAUDE.md` unconditionally; the rest are gated on the matching toggle:
 
-| File | `minimal` | `standard` | `full` |
-|---|---|---|---|
-| `.claude/standards/configuration.md` | — | ✓ | ✓ |
-| `.claude/standards/logging.md` | — | ✓ | ✓ |
-| `.claude/standards/telemetry.md` (OTEL) | — | — | ✓ |
-| `.claude/standards/error-handling.md` | — | ✓ | ✓ |
-| `.claude/standards/security.md` | — | optional | optional |
-| `.claude/standards/testing.md` | ✓ | ✓ | ✓ |
+| File | Imported |
+|---|---|
+| `.claude/standards/git-workflow.md` | always |
+| `.claude/standards/wiki.md` | always |
+| `.claude/standards/testing.md` | always |
+| `.claude/standards/error-handling.md` | always |
+| `.claude/standards/logging.md` | always (self-gates `structlog` vs stdlib on `structured_logging`) |
+| `.claude/standards/configuration.md` | when `app_config` is `yes` |
+| `.claude/standards/telemetry.md` (OTEL) | when `telemetry` is `yes` |
+| `.claude/standards/security.md` | when `security` is `yes` |
 
 Each standards document is prescriptive in two ways:
 
 1. **How** — patterns, conventions, and rules agents must follow
 2. **What** — the specific Python libraries approved for that concern (no agent should substitute its own choice)
 
-The Cookiecutter template uses conditional logic to inject the correct dependencies into `pyproject.toml` (or `requirements.txt`) based on the profile and concerns selected at scaffold time. An agent never decides which logging or telemetry library to use — that decision is made once in the standard and enforced by the template.
+The Cookiecutter template uses conditional logic to inject the correct dependencies into `pyproject.toml` (or `requirements.txt`) based on the toggles selected at scaffold time. An agent never decides which logging or telemetry library to use — that decision is made once in the standard and enforced by the template.
 
 Example standard library assignments (subject to revision):
 
 | Concern | Approved libraries |
 |---|---|
-| App settings / config | `pydantic-settings` |
+| App settings / config | `pydantic-settings` (with `python-dotenv` for `.env` support, used transitively) |
 | Structured logging | `structlog` |
 | OpenTelemetry | `opentelemetry-sdk`, `opentelemetry-api`, relevant exporters |
-| Security | `python-dotenv` (secrets), `bandit` (static analysis) |
+| Security | `bandit` (static analysis) |
 | Testing | `pytest`, `pytest-cov`, `pytest-mock` |
 
 These documents are **prescriptive** — they define how things must be done across all projects. They evolve slowly and intentionally; changes to a standard (including library upgrades) are made in the template and consciously adopted by new projects.
@@ -181,7 +176,7 @@ Cross-cutting concerns that require actual implementation work (e.g., "Set up te
 
 ## Codebase Wiki (`openwiki/`)
 
-Every project maintains an `openwiki/` folder as the shared memory for all agents. It is generated and maintained by **[OpenWiki](https://github.com/langchain-ai/openwiki)** — an LLM-powered tool that produces structured Markdown documentation from the codebase. It is **never edited by humans or agents directly**; the source of truth is always the code itself.
+Every project maintains an `openwiki/` folder as the shared memory for all agents. It is generated by **OpenWiki** — an LLM-powered CLI (`npm install -g openwiki`) that produces structured Markdown documentation from the codebase. The `openwiki/` content is **generated output — never hand-edited**; the source of truth is always the code itself. The agent-facing rule lives in the generated project's `.claude/standards/wiki.md`; per-machine install and usage are documented in its `README`.
 
 ### Why OpenWiki
 
@@ -190,7 +185,7 @@ Evaluated against the Gideon codebase, OpenWiki produced output that:
 - Correctly identified module boundaries, key abstractions, and security-critical components
 - Generated a `source-map.md` mapping every file to its purpose and related wiki pages — directly usable by the Phase 0 sequencing agent
 - Produced workflow and architecture docs specific enough to guide Phase 1 planning and Phase 3 building
-- Rebuilds automatically on every checkin via a CI job — no agent needs to remember to update it
+- Regenerates from a single command (`openwiki code --update`), so refreshing it is one deterministic step rather than a manual doc-writing chore
 
 This is better than agents maintaining wiki docs manually: it's deterministic, consistent, and always reflects the actual code.
 
@@ -219,11 +214,11 @@ Every agent reads the relevant wiki documents at the start of its invocation:
 
 ### Who Writes It
 
-OpenWiki is the only writer. It runs as a CI job (`openwiki-update.yml`) after every merge to main. Agents and humans never write to `openwiki/` directly — corrections to the wiki are corrections to the code.
+OpenWiki is the only writer. For now, regeneration is a **manual step**: before committing a change, the developer or agent runs `openwiki code --update` and commits the refreshed `openwiki/` in the same pull request, so the wiki never drifts from `main`. Nobody hand-edits `openwiki/` — corrections to the wiki are corrections to the code, followed by a regenerate. Automating this in CI (a workflow that regenerates the wiki and opens a PR on merge to main) is a **deferred future goal**, not yet wired up.
 
 ### Setup
 
-Every project template ships with a pre-configured `openwiki-update.yml` GitHub Actions workflow — this is the critical piece that keeps the wiki current automatically on every merge to main. The `openwiki` CLI itself is a global npm tool (`npm install -g openwiki`) that developers install once per machine; it is not a project dependency and does not appear in `pyproject.toml`.
+The `openwiki` CLI is a global npm tool (`npm install -g openwiki`) that developers install once per machine, then authenticate once (`openwiki auth <provider>`); it is not a project dependency and does not appear in `pyproject.toml`. First run in a fresh repo uses `openwiki code --init`; subsequent refreshes use `openwiki code --update`. The template documents this in the generated project's `README` (`## Wiki` section) and enforces the regenerate-before-commit rule via `.claude/standards/wiki.md`. (A pre-configured CI workflow was considered and deferred — see "Who Writes It" above.)
 
 ---
 
@@ -299,20 +294,3 @@ The human is notified asynchronously at these points only:
 | Phase 5 PR ready | Agent posts PR + review subagent comments | Human reviews and approves or requests changes |
 
 Notification channel: **GitHub comments**. The agent posts a structured comment on the relevant issue or PR at each HITL gate. This keeps all context in one place and requires no extra infrastructure. A consistent comment format (e.g., a `[HITL]` prefix) distinguishes action-required notifications from regular activity. Human responds by commenting or applying a label directly in GitHub.
-
----
-
-## Implementation Backlog
-
-These are the foundational issues to create in GitHub to build this system. They must be completed in order — each depends on the previous.
-
-1. ~~**Restructure the `basic` Cookiecutter template**~~ — **done** (GH issue #2, merged via PR #4). Shipped as four independent `no`/`yes` prompts (`app_config`, `structured_logging`, `telemetry`, `security`) instead of the tiered `observability_profile` enum originally sketched above — each concern opts in on its own rather than being bundled into a `minimal`/`standard`/`full` tier. `docs/GITWORKFLOW.md` moved to `.claude/standards/git-workflow.md`; `standards/` shipped stubbed, per item 2 below.
-2. ~~**Write standards documents**~~ — **done** (GH issue #3, branch `issue-3`). Full content authored for all six `.claude/standards/` docs; each specifies approved patterns and the specific approved Python library for its concern.
-3. **Wire up `CLAUDE.md` with conditional Jinja2 imports** — use Jinja2 conditionals in the template's `CLAUDE.md` to `@`-import only the `.claude/standards/` documents relevant to the chosen profile; record the project's observability profile and active concerns so every agent knows them without asking
-4. **Add OpenWiki CI workflow to the template** — add a pre-configured `openwiki-update.yml` GitHub Actions workflow that rebuilds the wiki on every merge to main; `openwiki` itself is a global npm CLI (`npm install -g openwiki`) installed separately by developers, not a project dependency
-5. ~~**Add `.claude/settings.json`**~~ — **already done.** The `basic` template ships with a baseline whitelist covering read-only git operations, filesystem reads, and the full `uv` test/lint/type-check stack. No action needed.
-
----
-
-## Open Questions
-

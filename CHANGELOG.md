@@ -4,6 +4,29 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.4.0] - 2026-07-12
+
+#### Added
+
+- `.claude/standards/wiki.md`, a new unconditional standard describing the
+  `openwiki/` codebase wiki: it is generated output that is never hand-edited,
+  and must be regenerated (`openwiki code --update`) and committed alongside
+  the code change that prompted it. Imported into `CLAUDE.md` for every
+  project.
+- A `## Wiki` section in `README.md` documenting the per-machine `openwiki`
+  install (`npm install -g openwiki`), one-time auth, and the
+  `openwiki code --init`/`--update` regenerate commands — `openwiki` is a
+  global CLI, never a project dependency.
+- `openwiki` entries (`Bash(openwiki)`, `Bash(openwiki *)`,
+  `Bash(npm install -g openwiki)`) in the `.claude/settings.json` whitelist so
+  agents may regenerate the wiki without an approval prompt.
+
+#### Changed
+
+- `CLAUDE.md`'s `## Imports` section now renders each `@`-import as a Markdown
+  list item (`- @...`) instead of a bare line, so it displays as a proper list
+  while still resolving as a Claude Code import.
+
 ### [1.3.0] - 2026-07-12
 
 #### Added

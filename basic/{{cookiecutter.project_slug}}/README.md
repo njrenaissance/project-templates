@@ -21,6 +21,28 @@ This project uses `uv` for package management, linting, and formatting.
 uv sync
 ```
 
+## Wiki
+
+This project keeps an `openwiki/` folder of generated codebase documentation
+(produced by [OpenWiki](https://www.npmjs.com/package/openwiki)). It is
+generated output — **never hand-edit it**; regenerate it and commit the result
+alongside the code change that prompted it, so the wiki stays in step with
+`main`.
+
+OpenWiki is a per-machine global CLI, **not** a project dependency (it is never
+added to `pyproject.toml`). Install and authenticate it once, then regenerate
+before committing:
+
+```bash
+npm install -g openwiki    # one-time, per machine
+openwiki auth <provider>   # one-time: sets up the LLM provider + API key
+openwiki code --init       # first run in a fresh repo
+openwiki code --update     # regenerate before committing a change
+```
+
+Regenerating calls a paid LLM provider. See `.claude/standards/wiki.md` for the
+regenerate-before-commit rule agents follow.
+
 ## Run
 
 ```bash
