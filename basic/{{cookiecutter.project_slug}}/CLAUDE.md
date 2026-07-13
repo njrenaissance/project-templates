@@ -13,18 +13,19 @@ Cross-cutting concerns enabled for this project:
 
 ## Imports
 
-@.claude/standards/git-workflow.md
-@.claude/standards/testing.md
-@.claude/standards/error-handling.md
+- @.claude/standards/git-workflow.md
+- @.claude/standards/wiki.md
+- @.claude/standards/testing.md
+- @.claude/standards/error-handling.md
 {%- if cookiecutter.app_config == "yes" %}
-@.claude/standards/configuration.md
+- @.claude/standards/configuration.md
 {%- endif %}
-@.claude/standards/logging.md
+- @.claude/standards/logging.md
 {%- if cookiecutter.telemetry == "yes" %}
-@.claude/standards/telemetry.md
+- @.claude/standards/telemetry.md
 {%- endif %}
 {%- if cookiecutter.security == "yes" %}
-@.claude/standards/security.md
+- @.claude/standards/security.md
 {%- endif %}
 
 ## Structure
