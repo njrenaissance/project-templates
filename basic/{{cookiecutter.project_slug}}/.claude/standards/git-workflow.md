@@ -7,7 +7,7 @@
 - **Integration**: All code changes must be merged via pull request
   - Never rewrite `main` history — no force-push, no `reset --hard`, no amending commits that are already on `main`.
   - If you need to fix something already merged to `main`, open a new branch and PR rather than editing `main` directly, even for "small" fixes.
-  - Every PR must pass `ci.yml` (lint, type-check, unit-tests — see `.github/workflows/`) before merging. Don't bypass required checks.
+  - Every PR must pass `ci.yml` (lint, type-check, unit-tests, integration-tests — see `.github/workflows/`) before merging. Don't bypass required checks. Branch protection's required status checks must include each of those job names (`Lint & Format`, `Type Check`, `Unit Tests`, `Integration Tests`) — see `.claude/rules/github-actions.md`.
   - PRs require clear commit history demonstrating incremental progress
   - Include reference to related issue in PR description
   - Avoid squash-merging; preserve commit history through the merge

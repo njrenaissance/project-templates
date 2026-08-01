@@ -58,7 +58,10 @@ Local quality gates are installed automatically when the project is generated
 (via `.pre-commit-config.yaml` + the [`pre-commit`](https://pre-commit.com/)
 framework). `git commit` runs `ruff format --check`, `ruff check`, and
 `mypy src`{{ " (plus `bandit -r src`)" if cookiecutter.security == "yes" else "" }};
-`git push` runs `pytest`. A failing hook is the same signal `ci.yml` would give,
+`git push` runs `pytest -m "not integration"` (the fast, service-less suite,
+mirroring the `Unit Tests` CI job — integration tests need Docker services and
+run only in the `Integration Tests` CI stage).
+A failing hook is the same signal `ci.yml` would give,
 just earlier. If the hooks were not installed (e.g. Git wasn't available at
 generation time), install them with
 `uv run pre-commit install && uv run pre-commit install --hook-type pre-push`.

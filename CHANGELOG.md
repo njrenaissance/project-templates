@@ -29,9 +29,14 @@ All notable changes to the templates in this repository are documented here, per
   run only in the dedicated stage (with their services) instead of double-running
   unserviced in the unit stage; also fixed a `--cov=src\` line-continuation quirk
   in that command (the missing space joined it to the next flag).
-- `github-actions.md` (Governance) now lists `Integration Tests` among the
-  required status-check names; `testing.md` documents the two-stage CI split and
-  the "adding an integration test requires committing a compose file" rule.
+- The `pre-push` Git hook (`.pre-commit-config.yaml`) now runs
+  `pytest -m "not integration"` instead of the full suite, mirroring the
+  `Unit Tests` CI job — integration tests need Docker services and belong only
+  in the `Integration Tests` CI stage, not at push time.
+- `github-actions.md` (Governance) and `git-workflow.md` now list
+  `Integration Tests` among the required status-check names; `testing.md`
+  documents the two-stage CI split and the "adding an integration test requires
+  committing a compose file" rule.
 
 ### [1.8.0] - 2026-07-29
 

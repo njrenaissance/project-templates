@@ -34,8 +34,12 @@ repos:
         stages: [pre-commit]
 {%- endif %}
       - id: pytest
-        name: pytest
-        entry: uv run pytest
+        name: pytest -m "not integration"
+        # Mirrors the `Unit Tests` CI job (unit-tests.yml): push runs the fast,
+        # service-less suite. Integration tests need Docker services stood up by
+        # a compose file and run only in the `Integration Tests` CI stage — never
+        # at push time, where those services aren't available.
+        entry: uv run pytest -m "not integration"
         language: system
         pass_filenames: false
         always_run: true
