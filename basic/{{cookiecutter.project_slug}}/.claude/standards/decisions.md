@@ -14,13 +14,13 @@
 - One ADR per decision. Capture the context that forced the choice, the
   options weighed, the decision, and its consequences (including what it rules
   out) — enough that someone six months later understands *why*, not just
-  *what*. The `adr` skill owns the exact format, numbering, and file location;
+  *what*. The `adr-authoring` skill owns the exact format, numbering, and file location;
   this standard owns only *when* a decision earns one.
 - ADRs are append-only history, not living docs. When a later decision
   overturns an earlier one, write a new ADR that supersedes it and mark the old
   one superseded — never rewrite or delete the original, since the record of
   *why the direction changed* is the point.
 - If the `adr-authoring` skill isn't present, don't skip the record — fall back to a
-  short dated Markdown note under `spec/adr/` (`NNNN-short-title.md`) carrying
+  short dated Markdown note under `spec/adrs/` (`NNNN-short-title.md`) carrying
   the same context/options/decision/consequences, and raise adding the skill as
   a follow-up.
