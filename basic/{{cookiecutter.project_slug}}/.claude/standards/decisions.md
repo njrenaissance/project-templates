@@ -1,7 +1,7 @@
 # Architecture Decisions
 
 - When you make a **significant or hard-to-reverse** architecture decision,
-  record it as an ADR (Architecture Decision Record) — use the `adr` skill if
+  record it as an ADR (Architecture Decision Record) — use the `adr-authoring` skill if
   it's available in the environment. "Significant" means a choice that shapes
   the codebase's structure and would be expensive to unwind later: picking a
   storage engine or framework, defining a module/service boundary, choosing a
@@ -20,7 +20,7 @@
   overturns an earlier one, write a new ADR that supersedes it and mark the old
   one superseded — never rewrite or delete the original, since the record of
   *why the direction changed* is the point.
-- If the `adr` skill isn't present, don't skip the record — fall back to a
-  short dated Markdown note under `docs/adr/` (`NNNN-short-title.md`) carrying
+- If the `adr-authoring` skill isn't present, don't skip the record — fall back to a
+  short dated Markdown note under `spec/adr/` (`NNNN-short-title.md`) carrying
   the same context/options/decision/consequences, and raise adding the skill as
   a follow-up.
