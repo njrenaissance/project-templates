@@ -1,0 +1,11 @@
+{
+  "project_name": "My IaC Project",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+  "author": "Your Name",
+  "terraform_version": "~> 1.9",
+  "cloud_provider": ["aws", "azure", "gcp"],
+  "enable_remote_state": ["no", "yes"],
+  "testing": ["no", "yes"],
+  "security_scanning": ["no", "yes"],
+  "diagrams": ["no", "yes"]
+}
