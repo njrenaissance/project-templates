@@ -4,6 +4,25 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.12.0] - 2026-09-28
+
+#### Added
+
+- A `diagrams` (`no`/`yes`, default `no`) cookiecutter prompt that gates the
+  inclusion of architecture diagramming standards and tooling. When `yes`, the
+  template renders `.claude/standards/diagramming.md` and documents the
+  `Diagramming` line in `CLAUDE.md`'s `## Profile`. Generated projects can use
+  the `diagrams` library to document system architecture as code — diagrams are
+  generated from Python, versionable in git, reviewable, and kept in sync with
+  the infrastructure. When `no`, the diagramming standard is not documented and
+  projects omit the feature.
+- `diagramming.md` standard under `.claude/standards/` that explains when to use
+  diagrams (system topology, network boundaries, entry/exit points, data flow),
+  when not to (implementation details, trivial systems, sequences), the principle
+  of one diagram per abstraction layer (infrastructure/orchestration/application),
+  and the structure for diagram scripts outside `src/` under `docs/architecture/`
+  paired with markdown companion documentation.
+
 ### [1.11.0] - 2026-08-01
 
 #### Added
