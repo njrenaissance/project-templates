@@ -54,12 +54,13 @@ Features enabled for this project:
 ## Commands
 
 ```bash
-terraform init                 # initialize terraform
-terraform fmt -recursive .     # format all terraform files
-terraform validate             # validate configuration
-terraform plan -out=tfplan    # plan infrastructure changes
-terraform apply tfplan         # apply changes
-{% if cookiecutter.testing == "yes" %}pytest tests/                    # run integration tests
+cd terraform
+terraform init                                # initialize terraform
+terraform fmt -recursive ..                   # format all terraform files
+terraform validate                            # validate configuration
+terraform plan -out=tfplan                   # plan infrastructure changes
+terraform apply tfplan                        # apply changes
+{% if cookiecutter.testing == "yes" %}pytest ../tests/                     # run integration tests
 {% endif %}```
 
 ## Git Workflow

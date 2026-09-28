@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values
+# terraform.tfvars is in .gitignore and should never be committed
+
+project_name = "{{ cookiecutter.project_name }}"
+environment  = "dev"
+
+{%- if cookiecutter.cloud_provider == "aws" %}
+aws_region = "us-east-1"
+{%- elif cookiecutter.cloud_provider == "azure" %}
+subscription_id = "your-subscription-id-here"
+location        = "eastus"
+{%- elif cookiecutter.cloud_provider == "gcp" %}
+gcp_project = "your-project-id"
+gcp_region  = "us-central1"
+{%- endif %}
