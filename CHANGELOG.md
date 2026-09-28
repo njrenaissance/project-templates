@@ -2,6 +2,29 @@
 
 All notable changes to the templates in this repository are documented here, per template. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## iac
+
+### [1.0.0] - 2026-09-28
+
+#### Added
+
+- Initial release of the `iac` (Infrastructure as Code) template for Terraform projects
+- Cloud provider selection: `aws`, `azure`, or `gcp` with provider-specific Terraform configurations
+- Remote state backend templates for S3 (AWS), Azure Storage, or GCS (GCP)
+- Conditional support for integration testing (`testing` prompt, includes standards doc)
+- Conditional support for security scanning (`security_scanning` prompt, includes standards doc)
+- Conditional diagramming support (`diagrams` prompt, includes standards doc)
+- Comprehensive standards under `.claude/standards/`:
+  - `terraform-conventions.md`: Code style, naming, best practices
+  - `module-design.md`: Module structure and reusability patterns
+  - `testing.md`: Integration testing patterns (if enabled)
+  - `security.md`: Secrets, state, and infrastructure security (if enabled)
+  - `diagramming.md`: Infrastructure topology documentation (if enabled)
+- Claude Code Terraform rules in `.claude/rules/terraform-lang.md`
+- Example networking module with provider-specific implementations (AWS, Azure, GCP)
+- Terraform files organized under `terraform/` directory with clear separation of concerns
+- Pre-configured directory structure with `terraform/modules/` for reusable infrastructure code
+
 ## basic
 
 ### [1.12.0] - 2026-09-28
