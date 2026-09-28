@@ -11,6 +11,7 @@ Cross-cutting concerns enabled for this project:
 - Telemetry (OpenTelemetry): {{ "enabled" if cookiecutter.telemetry == "yes" else "disabled" }}
 - Security scanning (`bandit`): {{ "enabled" if cookiecutter.security == "yes" else "disabled" }}
 - Coding-factory launchers (Scrum Master): {{ "enabled" if cookiecutter.coding_factory == "yes" else "disabled" }}
+- Diagramming (`diagrams` library): {{ "enabled" if cookiecutter.diagrams == "yes" else "disabled" }}
 
 ## Imports
 
@@ -29,6 +30,9 @@ Cross-cutting concerns enabled for this project:
 {%- endif %}
 {%- if cookiecutter.security == "yes" %}
 - @.claude/standards/security.md
+{%- endif %}
+{%- if cookiecutter.diagrams == "yes" %}
+- @.claude/standards/diagramming.md
 {%- endif %}
 
 ## Structure
