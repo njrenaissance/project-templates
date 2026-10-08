@@ -26,6 +26,15 @@ All notable changes to the templates in this repository are documented here, per
   `cruft update` delete those files; remove the `ANTHROPIC_API_KEY` and
   `GITHUB_MCP_TOKEN` secrets if nothing else uses them.
 
+#### Fixed
+
+- A generated project's first CI run failed in `Lint & Format`: Ruff 0.16+ also
+  checks Python code blocks inside Markdown, and the template's own
+  `.claude/rules/pytest-rules.md` and `.claude/standards/configuration.md` are not
+  Ruff-formatted. `pyproject.toml` now sets `extend-exclude = ["*.md"]`, so
+  `ruff format --check .` in CI checks Python files only — the same set the local
+  pre-commit hook (`types: [python]`) already checked, so the two gates agree.
+
 ### [1.12.0] - 2026-09-28
 
 #### Added
