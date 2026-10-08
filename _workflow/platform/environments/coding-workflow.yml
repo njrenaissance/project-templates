@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://platform.claude.com/schemas/ant/beta/environment.json
+#
+# Environment for the Inner Loop managed agent (inner-loop.yml).
+# Apply with:  ant apply _workflow/platform   (from the repo root; commit the
+# resulting claude-lock.json). Inferred as an environment from this directory.
+#
+# uv, git, make and Python 3.10-3.13 are preinstalled in the cloud sandbox, so
+# nothing is listed under `packages`. The project's own dependencies are NOT
+# preloaded here (this environment is shared across repos): the agent runs
+# `uv sync` / `make setup` after cloning. uv fetches a managed Python from GitHub
+# if the project needs a version the sandbox lacks (e.g. 3.14).
+#
+# GitHub credentials are not in this file: the MCP credential lives in a vault
+# attached to each session via `vault_ids`, and the repo is mounted with a
+# github_repository resource at session creation (see README.md).
+name: coding-workflow-env
+config:
+  type: cloud
+  networking:
+    type: limited
+    # pypi.org, files.pythonhosted.org (uv sync) and github.com (managed Python
+    # downloads).
+    allow_package_managers: true
+    # The agent declares the GitHub MCP server (api.githubcopilot.com); without
+    # this, session creation fails with a 400.
+    allow_mcp_servers: true
