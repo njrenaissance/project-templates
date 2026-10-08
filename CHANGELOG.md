@@ -4,6 +4,28 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.13.0] - 2026-10-07
+
+#### Added
+
+- `.claude/skills/issue-decomposition/` ships in every generated project. The
+  Sequence stage of the coding workflow (`_workflow/`) runs after Bootstrap, so
+  the skill must already be in the repo. It checks the spec is approved, avoids
+  duplicating existing issues, proposes the issue list with a Done-criteria
+  coverage table for approval, then opens issues from the `feature_request`
+  template. It lives only here (moved out of `_workflow/skills/`), so there is
+  one copy.
+
+#### Removed
+
+- The `coding_factory` prompt and everything it gated: the `scrum-master.yml` and
+  `approve.yml` launcher workflows, the README "Coding-factory launchers"
+  section, the `CLAUDE.md` Profile line, and the `github-actions.md` Governance
+  note. They implemented the retired Managed-Agent design (Scrum Master,
+  Planner, Build subagents). Projects that had `coding_factory=yes` will see
+  `cruft update` delete those files; remove the `ANTHROPIC_API_KEY` and
+  `GITHUB_MCP_TOKEN` secrets if nothing else uses them.
+
 ### [1.12.0] - 2026-09-28
 
 #### Added
