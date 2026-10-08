@@ -4,6 +4,14 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.13.1] - 2026-10-08
+
+#### Removed
+
+- The stray `.cookiecutter-template-version` file, re-added by 1.12.0 and stale
+  since. Template lineage is tracked by `.cruft.json` (see root `CLAUDE.md`);
+  `cruft update` deletes the file from downstream projects.
+
 ### [1.13.0] - 2026-10-07
 
 #### Added
