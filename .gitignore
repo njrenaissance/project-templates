@@ -7,3 +7,4 @@ env/
 
 # Environment variables
 .env
+.env.ps1

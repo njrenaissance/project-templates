@@ -1,6 +1,6 @@
 ---
 name: project-bootstrap
-description: Use this skill to bootstrap a brand-new project end to end, in one Claude Code session, from an approved specification (SPEC.md and ADRs.md, produced during Plan). Creates the GitHub repo, renders the chosen Cookiecutter template into it, copies in the approved spec as spec/SPEC.md and any ADRs, pushes straight to main, and only then turns on branch protection -- no PR for this step. This is a mechanical step (rendering a known template into a known folder), not a judgment call, so it skips the two-session admin/content split and PR gate used elsewhere in the outer loop. Trigger whenever the task is bootstrapping a new project's repo and structure from an approved spec. Does not decompose issues or write application code -- those come after, in separate sessions.
+description: Use this skill to bootstrap a brand-new project end to end, in one Claude Code session, from an approved specification (SPEC.md and ADRs.md, produced during Plan). Creates the GitHub repo, renders the chosen Cookiecutter template into it, copies in the approved spec as spec/SPEC.md and any ADRs, pushes straight to main, and only then turns on branch protection -- no PR for this step. This is a mechanical step (rendering a known template into a known folder), not a judgment call, so it skips any PR gate (main is protected only after the push). Trigger whenever the task is bootstrapping a new project's repo and structure from an approved spec. Does not decompose issues or write application code -- those come after, in separate sessions.
 allowed-tools: Read Write Glob Bash(gh repo create:*) Bash(gh label create:*) Bash(gh api repos/*/branches/*/protection) Bash(git clone:*) Bash(git add:*) Bash(git commit:*) Bash(git push:*) Bash(gh repo clone:*) Bash(gh api repos/*/contents*)
 ---
 
@@ -19,7 +19,7 @@ that already has project structure in it.
 2. `gh repo create <org>/<slug> --private` (or `--public`, per SPEC.md / the
    human's stated preference).
 3. Seed the workflow's standard labels (`gh label create ...`), matching the
-   label set the Execution phase's issues expect.
+   label set the Inner Loop's issues expect.
 4. Do NOT protect `main` yet -- "require PR before merging" would block
    Step 3's direct push. Protection is the last step of this skill, after
    content is already on `main`.
@@ -71,10 +71,10 @@ protection) -- check this before running the skill.
 1. Now that real content is on `main`, turn on branch protection: require a
    PR before merging, require status checks, require at least one review.
 2. From this point on, nothing lands on `main` without a reviewable diff --
-   Issue generation and Execution (the next phases) rely on this.
+   Sequence and the Inner Loop (the next phases) rely on this.
 
 ## What this skill does NOT do
 
 No issue decomposition, no application code, no ADR authoring (ADRs are
 written during Plan, before this skill runs). Tell the human clearly when
-Step 4 completes, so Issue generation can begin.
+Step 4 completes, so Sequence can begin.
