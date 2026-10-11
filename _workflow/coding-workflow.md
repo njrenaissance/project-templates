@@ -2,9 +2,9 @@
 
 ## Principles
 
-- **Plan before code, every time.** No stage writes production code without an approved plan to work from. This is the core guardrail: unsupervised work that goes down a wrong path costs more to unwind than doing it right the first time.
+- **Plan before code.** No stage writes production code without a plan to work from. Interactive Inner Loop runs gate on a human-approved plan before any code. The unattended Inner Loop agent posts its plan and continues, unless the run is launched with `require_plan_approval: true`, which makes the plan gate opt-in per run. Either way, the draft PR is the final human gate. Unwinding unsupervised work that goes down a wrong path costs more than doing it right the first time, which is why the gate is available and why small, well-specified issues can skip it.
 - **Mechanical steps run without a PR gate; judgment calls do.** Rendering a known template into a known repo is not a decision worth reviewing -- Bootstrap pushes straight to `main` because there's nothing to judge. Writing code against a plan is a decision worth reviewing -- the Inner Loop's Code Review step is a real PR gate. The gate is earned by risk, not applied uniformly.
-- **One phone, one Claude Code session at a time.** Every stage in this workflow is reachable from Claude Code on the web, usable from a phone. No infrastructure of my own is provisioned or operated -- no orchestrator, no standing services. The one exception is the Inner Loop, which can also run unattended as a single Claude Managed Agent (`platform/agents/inner-loop.yml`) given a repo and an issue number; it still stops at a draft PR for human review. Anthropic runs the sessions; a human runs the workflow.
+- **One phone, one Claude Code session at a time.** Every stage in this workflow is reachable from Claude Code on the web, usable from a phone. No infrastructure of my own is provisioned or operated -- no orchestrator, no standing services. The one exception is the Inner Loop, which can also run as a single Claude Managed Agent (`platform/agents/inner-loop.yml`) given a repo and an issue number; it still stops at a draft PR for human review. Launch mechanics are in [`platform/README.md`](platform/README.md). Anthropic runs the sessions; a human runs the workflow.
 - **Tightly scoped sessions.** Each session does one thing: one repo bootstrap, one spec, one issue's plan, one issue's build. No session carries context across stages -- each reads what it needs from the repo (or, pre-repo, from the Plan doc) fresh.
 - **Skills split by whether a repo exists yet.** `spec-authoring` and `adr-authoring` run during Plan, before any repo exists, so they are account-level skills on claude.ai -- there is nothing to commit into. Everything after Bootstrap (`issue-decomposition`, and the Inner Loop) can live in the repo's own `.claude/skills/`, seeded by the project template.
 - **A found problem is just a problem.** There is no separate escalation path distinct from the normal flow. If Bootstrap's cookiecutter render doesn't match the repo slug, it stops and says so. If an issue's plan is too big, it gets split before Build starts. Nothing pushes through silently.
@@ -27,11 +27,11 @@ flowchart LR
     class IL auto;
 ```
 
-**Inner Loop -- per issue.** Runs once per issue Sequence created. A Claude Code session plans the approach and waits for approval before writing any code; only then does it write tests, build against them, and open a PR. Human review and merge close it out.
+**Inner Loop -- per issue.** Runs once per issue Sequence created. A plan for the issue is written first. Whether the run then stops for approval before any code is written depends on the run's mode (see Inner · Plan Issue below): by default the agent continues straight to tests, build, and a draft PR; with the plan gate on, it stops after posting the plan and resumes in a second run once the plan is approved. Human review and merge close it out.
 
 ```mermaid
 flowchart LR
-    PI["Plan Issue<br/>(propose approach + file-level plan,<br/>HITL approval before any code)"] --> WT["Write Tests<br/>(against the approved plan)"] --> BU["Build<br/>(implement to green)"] --> CR["Code Review<br/>(HITL -- real PR gate)"] --> SH["Ship<br/>(merge to main)"]
+    PI["Plan Issue<br/>(propose approach + file-level plan,<br/>plan gate is opt-in per run)"] --> WT["Write Tests<br/>(against the plan)"] --> BU["Build<br/>(implement to green)"] --> CR["Code Review<br/>(HITL -- real PR gate)"] --> SH["Ship<br/>(merge to main)"]
 
     classDef hitl fill:#ffe0b2,stroke:#ef6c00,color:#5a2d00;
 
@@ -92,14 +92,34 @@ _Legend -- 🟧 Claude Code, human-in-the-loop._
 
 Runs once per issue Sequence created.
 
-#### Inner · Plan Issue `[Claude Code, HITL]`
+#### Inner · Plan Issue `[Claude Code, HITL -- or unattended]`
 
-**Goal:** Agree on the approach for this one issue before any code is written.
+**Goal:** Agree on the approach for this one issue, and check it is sized and specified well enough to build, before any code is written.
 
 1. Read the issue, `spec/SPEC.md`, and any relevant ADRs.
-2. Propose an approach and a file-level plan. Wait for approval before writing any code -- this is the guardrail against unsupervised work going down a wrong path.
+2. Propose an approach, a file-level plan, the acceptance criteria restated as testable statements (each mapped to the test that proves it), and anything out of scope.
+3. Size and sanity check. Stop with status `blocked` before writing any code if the issue is too large, its acceptance criteria are too vague to test, or the plan needs work outside the issue.
+4. Gate, per run:
+   - **Interactive session:** wait for the human to approve the plan before writing any code.
+   - **Unattended, default (`require_plan_approval` false):** post the plan as an issue comment and continue. The draft PR is the only human gate. Suited to small, well-specified issues.
+   - **Unattended, gated (`require_plan_approval: true`):** post the plan and stop with status `awaiting_approval`. No branch, no code.
 
-**Exit condition:** An approved plan for this issue.
+**Resuming after approval.** A second unattended run, with `approved_plan: <issue comment URL>` in its kickoff, skips planning and builds against that comment.
+
+**Exit condition:** An approved plan for this issue (or, in unattended-default mode, a posted plan that the run proceeds on).
+
+##### Unattended agent: kickoff and statuses
+
+The Inner Loop agent (`platform/agents/inner-loop.yml`) takes a kickoff with `repo` and `issue` (required), plus optional `require_plan_approval` (default `false`) and `approved_plan`. It finishes with a structured result whose `status` is one of:
+
+| Status | Meaning |
+|---|---|
+| `done` | Draft PR opened, gate green. |
+| `blocked` | Stopped before writing code (plan too large or vague, out-of-scope changes, checkout not mounted or refresh failed, or another unhandled stop). |
+| `awaiting_approval` | Plan posted under the plan gate; resume with `approved_plan`. |
+| `escalated` | Gate still red after 3 fix attempts, or a committed test judged wrong. Branch pushed as it stands. |
+
+Launch details are in [`platform/README.md`](platform/README.md).
 
 #### Inner · Write Tests `[Claude Code]`
 
@@ -120,7 +140,7 @@ Runs once per issue Sequence created.
 
 #### Inner · Code Review `[Claude Code, HITL]`
 
-**Goal:** The real judgment gate. Everything upstream is either the human's own approved plan or a green test suite -- this is where a human actually reads the diff.
+**Goal:** The real judgment gate. Everything upstream is either an approved plan, a plan the agent posted and proceeded on, or a green test suite -- this is where a human actually reads the diff.
 
 1. Open the PR (issue branch into `main`).
 2. Human reviews the diff.
