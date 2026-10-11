@@ -4,6 +4,15 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.16.0] - 2026-10-11
+
+#### Changed
+
+- `issue-decomposition` falls back to the GitHub MCP issue tools
+  (`list_issues`, `search_issues`, `issue_write`) when `gh` is missing or not
+  authenticated, so Sequence works on Claude Code on the web and in sandboxes.
+  Behaviour with `gh` present is unchanged.
+
 ### [1.15.0] - 2026-10-11
 
 #### Removed
