@@ -1,0 +1,75 @@
+name: Run next issue
+
+# On-demand driver for the Inner Loop. Runs _workflow/platform/run-next-issue.sh,
+# which selects the next eligible issue (see _workflow/platform/driver-spec.md)
+# and waits for the managed-agent session to finish.
+run-name: Run next issue (${{ inputs.dry_run && 'dry run' || 'live' }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only select and report the next issue; do not launch a run"
+        type: boolean
+        default: true
+      require_plan_approval:
+        description: "Stop each run at the plan for human approval before it implements"
+        type: boolean
+        default: true
+
+# One driver run at a time. Queue a second run rather than cancel the first,
+# because cancelling would leave a managed-agent session running unattended.
+concurrency:
+  group: run-next-issue
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ant CLI
+        env:
+          ANT_DOWNLOAD_URL: ${{ vars.ANT_DOWNLOAD_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$ANT_DOWNLOAD_URL" || { echo "repo variable ANT_DOWNLOAD_URL is not set"; exit 1; }
+          curl -fsSL "$ANT_DOWNLOAD_URL" -o "$RUNNER_TEMP/ant.tgz"
+          mkdir -p "$RUNNER_TEMP/ant"
+          tar -xzf "$RUNNER_TEMP/ant.tgz" -C "$RUNNER_TEMP/ant"
+          sudo install "$(find "$RUNNER_TEMP/ant" -type f -name ant | head -n1)" /usr/local/bin/ant
+          ant --version
+
+      - name: Select next issue and run it
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_TOKEN: ${{ secrets.RUN_PAT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REPO: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          REQUIRE_PLAN_APPROVAL: ${{ inputs.require_plan_approval }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          _workflow/platform/run-next-issue.sh "$REPO" "${args[@]}"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Run next issue"
+            echo "- dry run: \`${{ inputs.dry_run }}\`"
+            echo "- plan approval required: \`${{ inputs.require_plan_approval }}\`"
+            echo "- selected: \`${{ steps.run.outputs.selected || 'none' }}\`"
+            echo "- status: \`${{ steps.run.outputs.status || 'not launched' }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
