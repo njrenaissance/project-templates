@@ -27,11 +27,11 @@ flowchart LR
     class IL auto;
 ```
 
-**Inner Loop -- per issue.** Runs once per issue Sequence created. A plan for the issue is written first. Whether the run then stops for approval before any code is written depends on the run's mode (see Inner · Plan Issue below): by default the agent continues straight to tests, build, and a draft PR; with the plan gate on, it stops after posting the plan and resumes in a second run once the plan is approved. Human review and merge close it out.
+**Inner Loop -- per issue.** Runs once per issue Sequence created. A plan for the issue is written first. Whether the run then stops for approval before any code is written depends on the run's mode (see Inner · Plan Issue below): by default the agent continues straight to tests, build, automated review, and a draft PR; with the plan gate on, it stops after posting the plan and resumes in a second run once the plan is approved. Human review and merge close it out.
 
 ```mermaid
 flowchart LR
-    PI["Plan Issue<br/>(propose approach + file-level plan,<br/>plan gate is opt-in per run)"] --> WT["Write Tests<br/>(against the plan)"] --> BU["Build<br/>(implement to green)"] --> CR["Code Review<br/>(HITL -- real PR gate)"] --> SH["Ship<br/>(merge to main)"]
+    PI["Plan Issue<br/>(propose approach + file-level plan,<br/>plan gate is opt-in per run)"] --> WT["Write Tests<br/>(against the plan)"] --> BU["Build<br/>(implement to green)"] --> RV["Review<br/>(automated, diff-only,<br/>one pass)"] --> CR["Code Review<br/>(HITL -- real PR gate)"] --> SH["Ship<br/>(merge to main)"]
 
     classDef hitl fill:#ffe0b2,stroke:#ef6c00,color:#5a2d00;
 
@@ -137,6 +137,15 @@ Launch details are in [`platform/README.md`](platform/README.md).
 2. Run the full suite; iterate until it passes.
 
 **Exit condition:** Full suite passing.
+
+#### Inner · Review `[managed agent, unattended]`
+
+**Goal:** A context-free check of the diff before a human sees it. A separate read-only reviewer agent gets only the diff and the acceptance criteria, so it cannot be swayed by the builder's reasoning.
+
+1. After the gate passes, the Inner Loop writes the diff to a file outside the checkout and delegates to the reviewer (`platform/agents/code-reviewer.yml`).
+2. The builder fixes blocking findings once, re-runs the gate, and pushes. Findings it declines are recorded, with reasons, in the PR body.
+
+**Exit condition:** Findings addressed or recorded; draft PR opened.
 
 #### Inner · Code Review `[Claude Code, HITL]`
 

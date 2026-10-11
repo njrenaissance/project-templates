@@ -1,10 +1,12 @@
 # Claude Platform resources
 
 Definitions for the stage that runs as a Claude **Managed Agent** on the Claude
-Platform. Currently one: `agents/inner-loop.yml`, which runs the whole Inner Loop
-(Plan Issue -> Write Tests -> Build -> open PR) for a single issue in one
-unattended session. It never merges; the human reviews the PR. See
-`../coding-workflow.md` for where it fits.
+Platform. `agents/inner-loop.yml` runs the whole Inner Loop (Plan Issue -> Write
+Tests -> Build -> Review -> open PR) for a single issue in one unattended
+session. It delegates the Review step to `agents/code-reviewer.yml`, a second,
+read-only managed agent that sees only the diff and the acceptance criteria. It
+never merges; the human reviews the PR. See `../coding-workflow.md` for where it
+fits.
 
 Every other stage (Plan, Bootstrap, Sequence) is an interactive Claude Code
 session, not a managed agent.
@@ -13,7 +15,8 @@ session, not a managed agent.
 
 ```text
 platform/
-  agents/inner-loop.yml                  # the Inner Loop agent
+  agents/inner-loop.yml                  # the Inner Loop agent (coordinator)
+  agents/code-reviewer.yml               # read-only reviewer, delegated to by the Inner Loop
   run-issue.sh                           # launch a run: repo + issue number
   environments/coding-workflow.yml       # environment "coding-workflow-env"
 ```
@@ -95,5 +98,6 @@ where `status` is `done`, `blocked` (plan too big/vague, or other stop),
 
 ## Not covered (deliberately)
 
-- No context-free review subagent, no test-integrity hash lock, no Scrum Master,
-  no dependency/build order. Code Review is the human reading the draft PR.
+- No test-integrity hash lock, no Scrum Master, no dependency/build order. The
+  automated review is one pass before the PR; Code Review is still the human
+  reading the draft PR.
