@@ -86,8 +86,7 @@ has moved ahead; the on-demand `Template Sync` workflow
 (`.github/workflows/template-sync.yml`) runs the same check in CI when you trigger
 it. To pull template changes in, use the **`update-from-template`** skill
 (`.claude/skills/update-from-template/`), which runs `cruft update`, resolves any
-conflicts, and re-runs the gate above. A project that somehow lost its `.cruft.json`
-can re-establish the link with the **`link-to-template`** skill.
+conflicts, and re-runs the gate above.
 
 ## Conventions
 

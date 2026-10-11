@@ -7,8 +7,8 @@ name: Template Sync
 # template it was generated from?" — using the .cruft.json written at generation.
 #
 # Behaviour:
-#   - No .cruft.json (project predates cruft) -> green, with a notice to retrofit
-#     via the link-to-template skill. Never a hard fail.
+#   - No .cruft.json (not generated with cruft) -> green, with a notice. Never a
+#     hard fail.
 #   - .cruft.json present, up to date          -> green.
 #   - .cruft.json present, behind the template  -> fail loudly, pointing at the
 #     update-from-template skill.
@@ -39,7 +39,7 @@ jobs:
       - name: Check template sync
         run: |
           if [ ! -f .cruft.json ]; then
-            echo "::notice::No .cruft.json — this project predates cruft. Run the 'link-to-template' skill to retrofit it, then 'update-from-template'."
+            echo "::notice::No .cruft.json — this project was not generated with cruft, so there is nothing to check."
             exit 0
           fi
           if uvx cruft check; then
