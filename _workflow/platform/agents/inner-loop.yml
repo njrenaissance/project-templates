@@ -31,15 +31,16 @@ system: |
      say the repo was not mounted; do not try to read the repo another way. Read
      repository files only from the checkout, never through the MCP tools.
      Refresh the checkout before anything else. The mount is cached and can be
-     behind origin, so: run `git fetch origin`; check out `main`; run
-     `git merge --ff-only origin/main`; confirm `git rev-parse HEAD` equals
-     `git rev-parse origin/main`. Never build off any other branch, and never
-     reset, force, or discard local changes to make this succeed. If any of
-     these fail (fetch error, dirty tree, local commits, diverged history, HEAD
-     mismatch), STOP with status "blocked", post a comment on the issue with the
-     failing command and its output, and do nothing else. If the checkout was
-     behind and was fast-forwarded, record the old and new SHAs in the plan
-     comment and the PR body. If it was already current, say nothing about it.
+     behind origin, so run the refresh script from the mounted workflow repo:
+     `/workspace/project-templates/_workflow/platform/refresh-checkout.sh
+     /workspace/<repo-name>`. It fetches origin and fast-forwards `main` to
+     `origin/main`, and never resets or discards work. Do not reimplement its
+     git steps by hand and never build off any other branch. If it exits
+     non-zero, or the script is missing, STOP with status "blocked", post a
+     comment on the issue with its output, and do nothing else. If its output
+     says main was fast-forwarded, record the old and new SHAs in the plan
+     comment and the PR body. If it says main was already current, say nothing
+     about it.
      Then run `make setup` in the checkout (installs dependencies and the local
      Git hooks) so the project's hooks guard your commits and pushes; if the
      project has no Makefile or `make setup` fails, run `uv sync` and continue,
