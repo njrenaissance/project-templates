@@ -16,9 +16,9 @@
     "./_workflow/platform/agents/inner-loop.yml": {
       "kind": "agent",
       "id": "agent_012DFwq9vR3DjRc54rYRKSYt",
-      "version": "5",
-      "hash": "5d079b8be4459d530662275d6aacd0c2",
-      "remote_hash": "18c9553a76562effd09d22ca18147512"
+      "version": "6",
+      "hash": "95e14aa2b0df9d942378e42b74974abb",
+      "remote_hash": "17d1b9bc3fd9c97aa46e3a1ac08cd1c8"
     },
     "./_workflow/platform/environments/coding-workflow.yml": {
       "kind": "environment",
