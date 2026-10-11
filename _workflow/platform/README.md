@@ -54,13 +54,11 @@ What the script does, in one `ant beta:sessions create` call:
 
 - **Agent and environment** — the IDs are read from `claude-lock.json`.
 - **Repo** — mounted as a `github_repository` resource (cloned at the default
-  branch under `/workspace/<repo-name>`) using `GITHUB_TOKEN`. The workflow repo
-  (`njrenaissance/project-templates`) is mounted too, under
-  `/workspace/project-templates`, so the agent can run its
-  `refresh-checkout.sh` before planning. The token must be able to read both. A mount is a
-  session-creation parameter, so whoever creates the session must supply it; a
-  future orchestrator would do the same. Mounting also loads any skills in the
-  repo's root `.claude/skills`.
+  branch under `/workspace/<repo-name>`) using `GITHUB_TOKEN`. The token must be
+  able to read it. A mount is a session-creation parameter, so whoever creates
+  the session must supply it; a future orchestrator would do the same. Mounting
+  also loads any skills in the repo's root `.claude/skills`. The checkout is
+  refreshed by git commands in the agent's step 0, not by a helper script.
 - **Vault** — `vlt_011Cdb285v3WU3iywUaK3jSG` is attached via `vault_ids`. It is not
   defined in this repo.
 - **Kickoff message** — `repo`, `issue`, `require_plan_approval`. With
