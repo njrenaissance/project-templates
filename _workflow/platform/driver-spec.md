@@ -78,3 +78,35 @@ Plan approval is off. Runs go straight to tests, build, review, and a draft PR. 
 - The session-to-issue comment mapping. If session metadata can carry the issue number, prefer it.
 - `ANT_DOWNLOAD_URL` (the Linux `ant` archive URL in the workflow). Not yet confirmed.
 - Search index lag. The lock check uses `gh search issues`, which can miss a label set moments ago. The concurrency group covers the driver's own runs, but a manual issue edit could race.
+
+## Setup
+
+Values the driver needs. Set them once in `njrenaissance/project-templates` (Settings → Secrets and variables → Actions), and in each target repo where noted.
+
+| Name | Kind | Where | Value |
+|---|---|---|---|
+| `RUN_PAT` | secret | `project-templates` | Fine-grained PAT. Repository access: every target repo. Permissions: Contents read (session mount), Issues read/write (labels, comments), Pull requests read, Metadata read. |
+| `ANTHROPIC_API_KEY` | secret | `project-templates` | Anthropic API key with access to Managed Agents. |
+| `ANT_DOWNLOAD_URL` | variable | `project-templates` | URL of the Linux `ant` CLI archive. Not yet confirmed. |
+| `urgent` | label | each target repo | Manual priority. Create it and apply it to issues that should jump the queue. |
+| `agent-running`, `needs-human` | labels | each target repo | Created by the driver on first use. No setup. |
+
+The GitHub credential in the Claude Platform vault (`vlt_011Cdb285v3WU3iywUaK3jSG`, set in `run-issue.sh`) is not a repo value. It must be able to comment on and open PRs in every target repo.
+
+Commands, for the first time:
+
+```bash
+gh secret set RUN_PAT --repo njrenaissance/project-templates
+```
+
+```bash
+gh secret set ANTHROPIC_API_KEY --repo njrenaissance/project-templates
+```
+
+```bash
+gh variable set ANT_DOWNLOAD_URL --repo njrenaissance/project-templates --body "<ant linux archive URL>"
+```
+
+```bash
+gh label create urgent --repo <owner>/<target-repo> --color B60205 --description "Inner Loop driver: pick this issue first"
+```
