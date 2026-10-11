@@ -25,7 +25,7 @@ REPO="${1:-}"; ISSUE="${2:-}"; REQUIRE="false"
 for bin in ant jq; do command -v "$bin" >/dev/null 2>&1 || die "$bin not found on PATH"; done
 [[ -f "$LOCK" ]] || die "$LOCK not found; run from the repo root after \`ant apply _workflow/platform\`"
 
-AGENT_ID="$(jq -r '.resources | to_entries[] | select(.value.kind=="agent") | .value.id' "$LOCK" | head -n1)"
+AGENT_ID="$(jq -r '.resources | to_entries[] | select(.key | endswith("/inner-loop.yml")) | .value.id' "$LOCK" | head -n1)"
 ENVIRONMENT_ID="$(jq -r '.resources | to_entries[] | select(.value.kind=="environment") | .value.id' "$LOCK" | head -n1)"
 [[ -n "$AGENT_ID" && -n "$ENVIRONMENT_ID" ]] || die "no agent/environment IDs in $LOCK"
 
