@@ -15,9 +15,8 @@ Run this loop to catch the project up to the latest template.
 
 ## Preconditions
 
-1. **`.cruft.json` must exist.** If it does not, this project predates cruft — run
-   the `link-to-template` skill first to retrofit the link, which then hands back
-   here.
+1. **`.cruft.json` must exist.** If it does not, this project was not generated
+   with cruft and cannot be synced. Stop and tell the user.
 2. **Start clean, on a fresh branch.** Working tree must be clean. Per
    `.claude/standards/git-workflow.md`, create a branch for this change, e.g.
    `git checkout -b feature/template-sync`.

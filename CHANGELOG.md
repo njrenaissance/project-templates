@@ -4,6 +4,16 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.15.0] - 2026-10-11
+
+#### Removed
+
+- `.claude/skills/link-to-template/` no longer ships in generated projects. It
+  retrofitted projects carrying a `.cookiecutter-template-version` marker, and
+  no such project exists. Projects without `.cruft.json` now get a green notice
+  from `Template Sync` and no retrofit pointer. The root copy is removed too,
+  so the byte-identical duplicate check no longer applies.
+
 ### [1.14.0] - 2026-10-11
 
 #### Added
