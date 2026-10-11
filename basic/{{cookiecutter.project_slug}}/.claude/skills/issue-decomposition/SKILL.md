@@ -1,7 +1,7 @@
 ---
 name: issue-decomposition
 description: Use this skill when the Sequence step breaks an approved spec (already on `main` after Bootstrap) down into GitHub issues. Covers what "independently buildable" means in practice and the content each created GitHub issue must carry. Trigger this whenever decomposing a feature into units of work, not only when the human says "issues" or "tickets."
-allowed-tools: Read Glob Bash(gh issue list:*) Bash(gh issue create:*)
+allowed-tools: Read Glob Bash(gh issue list:*) Bash(gh issue create:*) mcp__github__list_issues mcp__github__search_issues mcp__github__issue_write
 ---
 
 # Issue Decomposition
@@ -23,9 +23,16 @@ into independently buildable GitHub issues.
 1. Read `spec/SPEC.md`. If its `Status` is not `approved`, stop and tell the
    human — decomposing a draft just produces issues that get rewritten.
 2. Read any `spec/adrs/*.md`; they constrain how issues should be cut.
-3. Run `gh issue list --state all` and note what already exists. Never create
-   a duplicate of an existing issue; if the spec changed since, say so and
-   propose only the delta.
+3. Detect the issue backend. Use `gh` when it is installed and
+   `gh auth status` succeeds. Otherwise (for example on Claude Code on the web
+   or in a sandbox with no `gh`), use the GitHub MCP issue tools:
+   `mcp__github__list_issues` to list and `mcp__github__search_issues` to
+   check for duplicates, and `mcp__github__issue_write` to create. The steps
+   below are the same for both backends.
+4. List existing issues (`gh issue list --state all`, or `list_issues` with
+   state `all`) and note what already exists. Never create a duplicate of an
+   existing issue; if the spec changed since, say so and propose only the
+   delta.
 
 ## What "independently buildable" actually means
 
@@ -118,9 +125,15 @@ each criterion precisely enough that someone else could write a test from it
 without asking you anything further. Reserve `bug_report` for defects, not
 planned work.
 
+With `gh`:
+
 ```bash
 gh issue create \
   --title "feat: <short, specific title>" \
   --label enhancement \
   --body-file <rendered feature_request body>
 ```
+
+Without `gh`, call `mcp__github__issue_write` with method `create`, the same
+title, the `enhancement` label, and the rendered body. Create issues in the
+same prerequisite-first order either way.
