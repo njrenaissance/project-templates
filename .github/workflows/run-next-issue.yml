@@ -1,0 +1,76 @@
+name: Run next issue
+
+# On-demand driver for the Inner Loop. Runs _workflow/platform/run-next-issue.sh
+# against the target repo, which reconciles the single-flight lock, selects the
+# next eligible issue, and launches the Inner Loop. It does not wait for the
+# session (see _workflow/platform/driver-spec.md).
+run-name: Run next issue on ${{ inputs.repo }} (${{ inputs.dry_run && 'dry run' || 'live' }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Target repo, <owner>/<name>"
+        type: string
+        default: "njrenaissance/project-templates"
+        required: true
+      dry_run:
+        description: "Only reconcile and report the next issue; do not launch a run"
+        type: boolean
+        default: true
+
+# One driver run at a time. Queue a second run rather than cancel the first,
+# because cancelling could leave a live session without its lock.
+concurrency:
+  group: run-next-issue
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ant CLI
+        env:
+          ANT_DOWNLOAD_URL: ${{ vars.ANT_DOWNLOAD_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$ANT_DOWNLOAD_URL" || { echo "repo variable ANT_DOWNLOAD_URL is not set"; exit 1; }
+          curl -fsSL "$ANT_DOWNLOAD_URL" -o "$RUNNER_TEMP/ant.tgz"
+          mkdir -p "$RUNNER_TEMP/ant"
+          tar -xzf "$RUNNER_TEMP/ant.tgz" -C "$RUNNER_TEMP/ant"
+          sudo install "$(find "$RUNNER_TEMP/ant" -type f -name ant | head -n1)" /usr/local/bin/ant
+          ant --version
+
+      - name: Reconcile, select, and launch
+        id: run
+        env:
+          # One fine-grained PAT with access to every target repo. It reads and
+          # labels issues and PRs, and it mounts the repo into each session.
+          GH_TOKEN: ${{ secrets.RUN_PAT }}
+          RUN_TOKEN: ${{ secrets.RUN_PAT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REPO: ${{ inputs.repo }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          _workflow/platform/run-next-issue.sh "$REPO" "${args[@]}"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Run next issue"
+            echo "- repo: \`${{ inputs.repo }}\`"
+            echo "- dry run: \`${{ inputs.dry_run }}\`"
+            echo "- result: \`${{ steps.run.outputs.result || 'launched' }}\`"
+            echo "- selected: \`${{ steps.run.outputs.selected || 'none' }}\`"
+            echo "- session: \`${{ steps.run.outputs.session || 'none' }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
