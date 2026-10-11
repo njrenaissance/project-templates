@@ -4,6 +4,18 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.17.0] - 2026-10-11
+
+#### Removed
+
+- `.claude/skills/issue-decomposition/` no longer ships in generated projects.
+  The skill moved back to `_workflow/skills/issue-decomposition/`, beside the
+  other workflow skills. The Sequence session is interactive and needs no copy
+  in each repo, so the per-project copy only added a way to go stale unnoticed.
+  This reverses the 1.13.0 rationale. The `feature_request` issue template is
+  still seeded, since the skill reads it. `cruft update` deletes the copy from
+  existing projects.
+
 ### [1.16.0] - 2026-10-11
 
 #### Changed
