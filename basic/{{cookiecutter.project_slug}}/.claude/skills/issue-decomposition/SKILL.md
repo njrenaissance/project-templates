@@ -62,7 +62,9 @@ so doesn't require describing another issue's internals.
 ## Propose the list, then create
 
 Sequence is human-in-the-loop. Before running `gh issue create`, show the
-human the full proposed list: a title and one-line scope per issue, plus a
+human the full proposed list: a title, one-line scope, and its direct
+prerequisites (the `Depends on` list) per issue, in the prerequisite-first
+order it will be created, plus a
 coverage table mapping **every Done criterion in `SPEC.md` to the issue(s)
 that satisfy it**. A criterion with no issue is a gap; an issue that maps to
 no criterion is scope creep — fix either before proceeding. Create the
@@ -70,10 +72,28 @@ issues only after the human approves the list.
 
 ## What this step does NOT do
 
-No dependency graph, no build order, no parallel grouping, and no
-`spec/build-order.md`. Issues are worked one Inner Loop run at a time, in
-whatever order the human picks. This step only opens issues — no code
-changes, so no PR.
+No build order, no parallel grouping, and no `spec/build-order.md`. Each
+issue records only its **direct prerequisites** in the `## Depends on`
+section; the human still picks the order issues are worked, one Inner Loop
+run at a time, respecting those prerequisites. This step only opens issues —
+no code changes, so no PR.
+
+## Dependencies
+
+Each created issue body carries a `## Depends on` section (from the
+installed `feature_request` template): a list of issue numbers, one per line
+as `- #12`, or the literal `None` when the issue has no prerequisites.
+
+Issue numbers only exist once an issue is created, so create issues in
+**prerequisite-first (topological) order**. Each issue's dependencies are
+then already numbered when its body is written. Do not create issues and
+then edit them to add dependency numbers.
+
+**Cycle check, at proposal time, before any `gh issue create`.** Build the
+dependency graph from the proposed list and topologically sort it. If it
+contains a cycle, stop and tell the human which issues form it and suggest
+which to merge or split. Create nothing until the cycle is resolved and the
+list is re-approved.
 
 ## Issue content and format
 
@@ -89,7 +109,8 @@ assuming fields (the same way Bootstrap reads `cookiecutter.json`):
 **What do you want to add**, **Why** (cite the spec's Purpose or the Done
 criterion it serves), **Acceptance criteria**, and **Out of scope** (name the
 adjacent work that belongs to a different issue, so the Inner Loop doesn't
-wander). It sets the `feat:`
+wander), and **Depends on** (the direct prerequisites from the proposed
+list, or `None`). It sets the `feat:`
 title prefix and the `enhancement` label. Its **Acceptance criteria**
 section must be testable to the same bar as SPEC.md's Done criteria —
 Inner · Write Tests authors the executable tests straight from it, so write
