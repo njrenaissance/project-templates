@@ -6,12 +6,19 @@
     "workspace_id": "wrkspc_012fx3euqSFuzjVEPEoHdMtr"
   },
   "resources": {
+    "./_workflow/platform/agents/code-reviewer.yml": {
+      "kind": "agent",
+      "id": "agent_019BGMjRnQF5ofYuGiaMRWMR",
+      "version": "1",
+      "hash": "d573a1b14756f008e23c5dee5a869086",
+      "remote_hash": "9abe019cc9a7cd87a02aba2ea7406159"
+    },
     "./_workflow/platform/agents/inner-loop.yml": {
       "kind": "agent",
       "id": "agent_012DFwq9vR3DjRc54rYRKSYt",
-      "version": "4",
-      "hash": "583fc47bbced0d7dfbf8e80aef8ee573",
-      "remote_hash": "cd35a982d5fbfbaac6ed820c7298db8f"
+      "version": "5",
+      "hash": "5d079b8be4459d530662275d6aacd0c2",
+      "remote_hash": "18c9553a76562effd09d22ca18147512"
     },
     "./_workflow/platform/environments/coding-workflow.yml": {
       "kind": "environment",
