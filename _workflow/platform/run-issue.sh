@@ -30,16 +30,8 @@ AGENT_ID="$(jq -r '.resources | to_entries[] | select(.value.kind=="agent") | .v
 ENVIRONMENT_ID="$(jq -r '.resources | to_entries[] | select(.value.kind=="environment") | .value.id' "$LOCK" | head -n1)"
 [[ -n "$AGENT_ID" && -n "$ENVIRONMENT_ID" ]] || die "no agent/environment IDs in $LOCK"
 
-# Mount the workflow repo too, so the agent can run its refresh script from it.
-# If the target is the workflow repo itself, one mount is enough.
-TEMPLATES_MOUNT=""
-if [[ "$REPO" != "$TEMPLATES_REPO" ]]; then
-  TEMPLATES_MOUNT="  - type: github_repository
-    url: https://github.com/$TEMPLATES_REPO
-    authorization_token: $GITHUB_TOKEN
-"
-fi
-
+# Always mount the workflow repo as a helper, so the agent can run its refresh
+# script from it (see inner-loop.yml step 0).
 ant beta:sessions create --transform id --raw-output <<YAML
 agent: $AGENT_ID
 environment_id: $ENVIRONMENT_ID
@@ -49,7 +41,10 @@ resources:
   - type: github_repository
     url: https://github.com/$REPO
     authorization_token: $GITHUB_TOKEN
-${TEMPLATES_MOUNT}initial_events:
+  - type: github_repository
+    url: https://github.com/$TEMPLATES_REPO
+    authorization_token: $GITHUB_TOKEN
+initial_events:
   - type: user.message
     content:
       - type: text
