@@ -11,6 +11,7 @@
 set -euo pipefail
 
 VAULT_ID="vlt_011Cdb285v3WU3iywUaK3jSG"
+TEMPLATES_REPO="njrenaissance/project-templates"
 LOCK="${CLAUDE_LOCK:-claude-lock.json}"
 
 die() { printf 'run-issue: %s\n' "$*" >&2; exit 1; }
@@ -29,6 +30,16 @@ AGENT_ID="$(jq -r '.resources | to_entries[] | select(.value.kind=="agent") | .v
 ENVIRONMENT_ID="$(jq -r '.resources | to_entries[] | select(.value.kind=="environment") | .value.id' "$LOCK" | head -n1)"
 [[ -n "$AGENT_ID" && -n "$ENVIRONMENT_ID" ]] || die "no agent/environment IDs in $LOCK"
 
+# Mount the workflow repo too, so the agent can run its refresh script from it.
+# If the target is the workflow repo itself, one mount is enough.
+TEMPLATES_MOUNT=""
+if [[ "$REPO" != "$TEMPLATES_REPO" ]]; then
+  TEMPLATES_MOUNT="  - type: github_repository
+    url: https://github.com/$TEMPLATES_REPO
+    authorization_token: $GITHUB_TOKEN
+"
+fi
+
 ant beta:sessions create --transform id --raw-output <<YAML
 agent: $AGENT_ID
 environment_id: $ENVIRONMENT_ID
@@ -38,7 +49,7 @@ resources:
   - type: github_repository
     url: https://github.com/$REPO
     authorization_token: $GITHUB_TOKEN
-initial_events:
+${TEMPLATES_MOUNT}initial_events:
   - type: user.message
     content:
       - type: text
