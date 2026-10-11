@@ -4,6 +4,16 @@ All notable changes to the templates in this repository are documented here, per
 
 ## basic
 
+### [1.14.0] - 2026-10-11
+
+#### Added
+
+- `feature_request` issue template gains a `## Depends on` section (`- #N`
+  lines, or `None`) for an issue's direct prerequisites.
+- `issue-decomposition` records each issue's prerequisites in that section.
+  Issues are created prerequisite-first, so no edit pass is needed. A cycle
+  among the proposed issues stops the skill before anything is created.
+
 ### [1.13.1] - 2026-10-08
 
 #### Removed
