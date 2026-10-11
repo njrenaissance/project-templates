@@ -6,7 +6,7 @@
 - **Mechanical steps run without a PR gate; judgment calls do.** Rendering a known template into a known repo is not a decision worth reviewing -- Bootstrap pushes straight to `main` because there's nothing to judge. Writing code against a plan is a decision worth reviewing -- the Inner Loop's Code Review step is a real PR gate. The gate is earned by risk, not applied uniformly.
 - **One phone, one Claude Code session at a time.** Every stage in this workflow is reachable from Claude Code on the web, usable from a phone. No infrastructure of my own is provisioned or operated -- no orchestrator, no standing services. The one exception is the Inner Loop, which can also run as a single Claude Managed Agent (`platform/agents/inner-loop.yml`) given a repo and an issue number; it still stops at a draft PR for human review. Launch mechanics are in [`platform/README.md`](platform/README.md). Anthropic runs the sessions; a human runs the workflow.
 - **Tightly scoped sessions.** Each session does one thing: one repo bootstrap, one spec, one issue's plan, one issue's build. No session carries context across stages -- each reads what it needs from the repo (or, pre-repo, from the Plan doc) fresh.
-- **Skills split by whether a repo exists yet.** `spec-authoring` and `adr-authoring` run during Plan, before any repo exists, so they are account-level skills on claude.ai -- there is nothing to commit into. Everything after Bootstrap (`issue-decomposition`, and the Inner Loop) can live in the repo's own `.claude/skills/`, seeded by the project template.
+- **Skills split by where they run.** The workflow skills (`spec-authoring`, `adr-authoring`, `project-bootstrap`, `issue-decomposition`) live in `_workflow/skills/` and run from this repo. The Sequence session is interactive, not an agent, so it needs no copy in each project. Only the repo files a skill reads (such as the `feature_request` issue template) are seeded by the project template. `spec-authoring` and `adr-authoring` run during Plan, before any repo exists, so they are also installed as account-level skills on claude.ai.
 - **A found problem is just a problem.** There is no separate escalation path distinct from the normal flow. If Bootstrap's cookiecutter render doesn't match the repo slug, it stops and says so. If an issue's plan is too big, it gets split before Build starts. Nothing pushes through silently.
 
 ---
@@ -80,7 +80,7 @@ _Legend -- 🟧 Claude Code, human-in-the-loop._
 
 **Goal:** Break the approved spec into individually-scoped GitHub issues, each sized to fit one Inner Loop run.
 
-1. Guided by the `issue-decomposition` skill (now living in the repo's own `.claude/skills/`, seeded by the template -- Sequence runs after Bootstrap, so the repo exists).
+1. Guided by the `issue-decomposition` skill (`_workflow/skills/issue-decomposition/`). It reads the repo's `.github/ISSUE_TEMPLATE/feature_request.md`, which the template seeds; Sequence runs after Bootstrap, so the repo exists.
 2. Read `spec/SPEC.md`. Decompose it into issues fine enough that each one's acceptance criteria can be written without referencing another issue's internal design.
 3. Create each as a real GitHub issue via `gh issue create`, using the installed issue template. This step only opens issues -- no code changes -- so it needs no PR either.
 
