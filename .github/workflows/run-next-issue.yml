@@ -54,6 +54,7 @@ jobs:
           # labels issues and PRs, and it mounts the repo into each session.
           GH_TOKEN: ${{ secrets.RUN_PAT }}
           RUN_TOKEN: ${{ secrets.RUN_PAT }}
+          SESSION_BUDGET: ${{ vars.SESSION_BUDGET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           REPO: ${{ inputs.repo }}
           DRY_RUN: ${{ inputs.dry_run }}

@@ -87,6 +87,7 @@ Values the driver needs. Set them once in `njrenaissance/project-templates` (Set
 |---|---|---|---|
 | `RUN_PAT` | secret | `project-templates` | Fine-grained PAT. Repository access: every target repo. Permissions: Contents read (session mount), Issues read/write (labels, comments), Pull requests read, Metadata read. |
 | `ANTHROPIC_API_KEY` | secret | `project-templates` | Anthropic API key with access to Managed Agents. |
+| `SESSION_BUDGET` | variable | `project-templates` | Per-session spend ceiling in cents. For example `200` is $2. A session stops once it reaches this cost, checked between model requests, so one request can overshoot it. The driver refuses to launch without it. |
 | `ANT_DOWNLOAD_URL` | variable | `project-templates` | URL of the Linux `ant` CLI archive. Not yet confirmed. |
 | `urgent` | label | each target repo | Manual priority. Create it and apply it to issues that should jump the queue. |
 | `agent-running`, `needs-human` | labels | each target repo | Created by the driver on first use. No setup. |
@@ -110,3 +111,9 @@ gh variable set ANT_DOWNLOAD_URL --repo njrenaissance/project-templates --body "
 ```bash
 gh label create urgent --repo <owner>/<target-repo> --color B60205 --description "Inner Loop driver: pick this issue first"
 ```
+
+## Spend ceiling
+
+Each session gets a `budget` (`type: limit`, `max_list_cost` in cents, from `SESSION_BUDGET`). When the cost reaches it, the session stops with `stop_reason: budget_reached`, and the driver labels the issue `needs-human` on the next run, as for any session that ends without a PR.
+
+Checked on a one-cent test session: it stopped at `budget_reached` with 11 cents recorded. The ceiling is checked between model requests, so a single request can overshoot it. Size the ceiling with that margin in mind.
